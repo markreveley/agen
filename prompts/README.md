@@ -1,6 +1,6 @@
 # Prompt Versioning
 
-This directory contains versioned prompts used to build and guide the `agent` CLI.
+This directory contains versioned prompts used to build and guide the `agen` CLI.
 
 ## Why Version Prompts?
 
@@ -72,7 +72,7 @@ tags: [category, purpose, feature]
 prompts/
 ├── README.md           # This file
 ├── BUILD_PROMPT.md     # Main build specification prompt
-├── SYSTEM_PROMPT.md    # System prompts for agent (future)
+├── SYSTEM_PROMPT.md    # System prompts for agen (future)
 └── archive/            # Deprecated prompts (future)
 ```
 
@@ -117,7 +117,7 @@ Instead of deleting prompts, mark them as `status: deprecated` and move to `arch
 
 | File | Version | Status | Description |
 |------|---------|--------|-------------|
-| `BUILD_PROMPT.md` | 1.0.0 | active | Main specification for building the agent CLI |
+| `BUILD_PROMPT.md` | 1.0.0 | active | Main specification for building the agen CLI |
 
 ## References
 

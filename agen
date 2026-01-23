@@ -12,11 +12,11 @@ EXIT_LIMIT=3
 
 show_help() {
   cat <<'EOF'
-agent - Unix-native AI agent CLI
+agen - Unix-native AI agent CLI
 
 SYNOPSIS
-  agent [OPTIONS] [PROMPT]
-  command | agent [OPTIONS] [PROMPT]
+  agen [OPTIONS] [PROMPT]
+  command | agen [OPTIONS] [PROMPT]
 
 DESCRIPTION
   A CLI tool that brings AI agents into Unix pipelines. Agents compose
@@ -43,17 +43,17 @@ EXIT CODES
 
 EXAMPLES
   # Simple query
-  agent "Explain Unix pipes"
+  agen "Explain Unix pipes"
 
   # Pipeline usage
-  cat error.log | agent "diagnose this error"
+  cat error.log | agen "diagnose this error"
 
   # Stateful conversation
-  agent --state=chat.json "Start a new project"
-  agent --state=chat.json --resume "Add tests"
+  agen --state=chat.json "Start a new project"
+  agen --state=chat.json --resume "Add tests"
 
   # Agentic mode
-  agent --tools=bash --max-turns=5 "Create a hello world script"
+  agen --tools=bash --max-turns=5 "Create a hello world script"
 
 ENVIRONMENT
   ANTHROPIC_API_KEY   Required. Your Anthropic API key.
@@ -62,11 +62,11 @@ EOF
 }
 
 show_version() {
-  echo "agent $VERSION"
+  echo "agen $VERSION"
 }
 
 die() {
-  echo "agent: $*" >&2
+  echo "agen: $*" >&2
   exit $EXIT_FAILURE
 }
 

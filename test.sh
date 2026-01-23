@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Test harness for agent CLI
+# Test harness for agen CLI
 # Run: ./test.sh
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-AGENT="$SCRIPT_DIR/agent"
+AGEN="$SCRIPT_DIR/agen"
 
 TESTS_RUN=0
 TESTS_PASSED=0
@@ -62,22 +62,22 @@ test_output_contains() {
   fi
 }
 
-echo "Running agent CLI tests..."
+echo "Running agen CLI tests..."
 echo ""
 
 # Phase 0 tests
 echo "=== Phase 0: Interface Contract ==="
 
-test_case "--help exits 0" 0 "$AGENT" --help
-test_output_contains "--help contains SYNOPSIS" "SYNOPSIS" "$AGENT" --help
-test_output_contains "--help contains OPTIONS" "OPTIONS" "$AGENT" --help
+test_case "--help exits 0" 0 "$AGEN" --help
+test_output_contains "--help contains SYNOPSIS" "SYNOPSIS" "$AGEN" --help
+test_output_contains "--help contains OPTIONS" "OPTIONS" "$AGEN" --help
 
-test_case "--version exits 0" 0 "$AGENT" --version
-test_output_contains "--version contains version number" "0.1.0" "$AGENT" --version
+test_case "--version exits 0" 0 "$AGEN" --version
+test_output_contains "--version contains version number" "0.1.0" "$AGEN" --version
 
-test_case "no arguments exits 1" 1 "$AGENT"
-test_case "prompt without implementation exits 1" 1 "$AGENT" "anything"
-test_case "unknown option exits 1" 1 "$AGENT" --unknown-flag
+test_case "no arguments exits 1" 1 "$AGEN"
+test_case "prompt without implementation exits 1" 1 "$AGEN" "anything"
+test_case "unknown option exits 1" 1 "$AGEN" --unknown-flag
 
 # Summary
 echo ""

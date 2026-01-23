@@ -1,4 +1,4 @@
-# agent
+# agen
 
 A Unix-native AI agent CLI that composes in pipelines.
 
@@ -7,7 +7,7 @@ A Unix-native AI agent CLI that composes in pipelines.
 **Vision B: Agent in the Shell** — The agent is one tool among many. The shell orchestrates. Agents compose in pipelines.
 
 ```bash
-cat error.log | agent "diagnose" | agent "suggest fix" > recommendations.md
+cat error.log | agen "diagnose" | agen "suggest fix" > recommendations.md
 ```
 
 ## Installation
@@ -15,13 +15,13 @@ cat error.log | agent "diagnose" | agent "suggest fix" > recommendations.md
 1. Clone this repository
 2. Ensure dependencies are installed: `bash 4+`, `curl`, `jq`
 3. Set your API key: `export ANTHROPIC_API_KEY="your-key"`
-4. Run: `./agent --help`
+4. Run: `./agen --help`
 
 ## Usage
 
 ```
-agent [OPTIONS] [PROMPT]
-command | agent [OPTIONS] [PROMPT]
+agen [OPTIONS] [PROMPT]
+command | agen [OPTIONS] [PROMPT]
 ```
 
 ### Options
@@ -44,8 +44,8 @@ command | agent [OPTIONS] [PROMPT]
 
 | Code | Meaning | Script Usage |
 |------|---------|--------------|
-| 0 | Success | `agent && echo "done"` |
-| 1 | Failure | `agent \|\| echo "failed"` |
+| 0 | Success | `agen && echo "done"` |
+| 1 | Failure | `agen \|\| echo "failed"` |
 | 2 | Needs input | Retry with more context |
 | 3 | Hit limit | Increase --max-turns |
 
@@ -54,41 +54,41 @@ command | agent [OPTIONS] [PROMPT]
 ### Simple Query
 
 ```bash
-agent "Explain Unix pipes"
+agen "Explain Unix pipes"
 ```
 
 ### Pipeline Usage
 
 ```bash
 # Diagnose an error
-cat error.log | agent "diagnose this error"
+cat error.log | agen "diagnose this error"
 
 # Chain agents
-cat data.csv | agent "summarize" | agent "format as markdown" > summary.md
+cat data.csv | agen "summarize" | agen "format as markdown" > summary.md
 ```
 
 ### Stateful Conversation
 
 ```bash
 # Start a conversation
-agent --state=chat.json "Help me design an API"
+agen --state=chat.json "Help me design an API"
 
 # Continue it later
-agent --state=chat.json --resume "Add authentication"
+agen --state=chat.json --resume "Add authentication"
 ```
 
 ### Agentic Mode
 
 ```bash
 # Let the agent execute commands
-agent --tools=bash --max-turns=5 "Create a Python hello world and run it"
+agen --tools=bash --max-turns=5 "Create a Python hello world and run it"
 ```
 
 ### Scripting
 
 ```bash
 # Use in scripts with proper error handling
-if cat report.txt | agent --batch "summarize"; then
+if cat report.txt | agen --batch "summarize"; then
   echo "Summary complete"
 else
   case $? in

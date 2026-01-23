@@ -6,7 +6,7 @@
 
 ### What was built
 
-- `agent` script with `--help` and `--version` implemented
+- `agen` script with `--help` and `--version` implemented
 - All other options recognized but return "not yet implemented"
 - Proper exit codes defined as named constants
 - `README.md` with full usage documentation
