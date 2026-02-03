@@ -103,7 +103,7 @@ Each phase produces a tested commit with message format: `"Phase N: Description"
 #!/usr/bin/env bash
 set -euo pipefail
 
-VERSION="0.1.0"
+VERSION="0.2.0"
 DEFAULT_MODEL="claude-sonnet-4-20250514"
 
 # Exit codes as named constants

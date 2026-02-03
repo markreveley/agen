@@ -175,6 +175,20 @@ fi
 
 The shell orchestrates. agen is one tool among many.
 
+## Directory Structure
+
+```
+agen/
+├── agen                # Main CLI script (~350 lines bash)
+├── test.sh             # Test suite
+├── README.md           # This file
+├── DEVLOG.md           # Development notes and decisions
+├── CLAUDE.md           # AI assistant guide
+└── prompts/            # Versioned prompts
+    ├── README.md       # Prompt versioning guide
+    └── BUILD_PROMPT.md # Build specification (v1.0.0)
+```
+
 ## License
 
 MIT
