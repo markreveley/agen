@@ -19,7 +19,7 @@
 #
 set -euo pipefail
 
-VERSION="0.2.0"
+VERSION="0.3.0"
 DEFAULT_MODEL="claude-sonnet-4-20250514"
 
 # Exit codes as named constants
@@ -49,7 +49,8 @@ OPTIONS
   --version           Show version
   --backend=BACKEND   LLM backend: claude-code, llm, api, auto (default: auto)
   --model=MODEL       Model to use (default: claude-sonnet-4-20250514)
-  --system=FILE       System prompt file to prepend
+  --system=STRING     System prompt string to prepend
+  --system-file=FILE  System prompt file to prepend
   --verbose           Debug output on stderr
 
   Not yet implemented:
@@ -77,8 +78,11 @@ EXAMPLES
   # Chain agents
   cat data.csv | agen "summarize" | agen "format as markdown"
 
-  # With system prompt
-  agen --system=SYSTEM.md "process this task"
+  # With system prompt from file
+  agen --system-file=SYSTEM.md "process this task"
+
+  # With inline system prompt
+  agen --system="You are a code reviewer. Be concise." "review this"
 
   # Specific backend
   agen --backend=claude-code "explain this"
@@ -226,10 +230,16 @@ build_prompt() {
   local task="$1"
   local stdin_content="$2"
   local system_file="$3"
+  local system_prompt="$4"
 
-  # Layer 1: System prompt (if provided)
+  # Layer 1: System prompt (from file or inline string)
   if [[ -n "$system_file" ]] && [[ -f "$system_file" ]]; then
     cat "$system_file"
+    echo ""
+    echo "---"
+    echo ""
+  elif [[ -n "$system_prompt" ]]; then
+    echo "$system_prompt"
     echo ""
     echo "---"
     echo ""
@@ -260,6 +270,7 @@ main() {
   BACKEND="${AGEN_BACKEND:-auto}"
   MODEL="$DEFAULT_MODEL"
   SYSTEM_FILE=""
+  SYSTEM_PROMPT=""
   VERBOSE=""
 
   local prompt_args=()
@@ -295,11 +306,26 @@ main() {
         shift
         ;;
       --system=*)
+        SYSTEM_PROMPT="${1#*=}"
+        shift
+        ;;
+      --system)
+        SYSTEM_PROMPT="$2"
+        shift 2
+        ;;
+      --system-file=*)
         SYSTEM_FILE="${1#*=}"
         if [[ ! -f "$SYSTEM_FILE" ]]; then
           die "System file not found: $SYSTEM_FILE"
         fi
         shift
+        ;;
+      --system-file)
+        SYSTEM_FILE="$2"
+        if [[ ! -f "$SYSTEM_FILE" ]]; then
+          die "System file not found: $SYSTEM_FILE"
+        fi
+        shift 2
         ;;
       --batch|--json|--resume|--checkpoint)
         die "Option $1 not yet implemented"
@@ -337,7 +363,7 @@ main() {
 
   # Build and execute
   local full_prompt
-  full_prompt="$(build_prompt "$task" "$stdin_content" "$SYSTEM_FILE")"
+  full_prompt="$(build_prompt "$task" "$stdin_content" "$SYSTEM_FILE" "$SYSTEM_PROMPT")"
 
   call_llm "$full_prompt"
 }
