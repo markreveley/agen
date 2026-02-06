@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Test harness for agen CLI
+# Test harness for agent CLI
 # Run: ./test.sh
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-AGEN="$SCRIPT_DIR/agen"
+AGEN="$SCRIPT_DIR/agent"
 
 TESTS_RUN=0
 TESTS_PASSED=0
@@ -61,7 +61,7 @@ test_output_contains() {
   fi
 }
 
-echo "Running agen CLI tests..."
+echo "Running agent CLI tests..."
 echo ""
 
 # Phase 0 tests
@@ -83,32 +83,32 @@ echo "=== Stub Backend ==="
 # Use a temp file for the stub counter so tests don't interfere with anything
 STUB_COUNTER_FILE=$(mktemp)
 rm -f "$STUB_COUNTER_FILE"
-export AGEN_STUB_FILE="$STUB_COUNTER_FILE"
+export AGENT_STUB_FILE="$STUB_COUNTER_FILE"
 
 # First call should return 1
 test_output_contains "stub returns 'LLM return 1' on first call" "LLM return 1" \
-  env AGEN_BACKEND=stub "$AGEN" "test prompt"
+  env AGENT_BACKEND=stub "$AGEN" "test prompt"
 
 # Second call should return 2 (counter increments)
 test_output_contains "stub counter increments to 2" "LLM return 2" \
-  env AGEN_BACKEND=stub "$AGEN" "test prompt"
+  env AGENT_BACKEND=stub "$AGEN" "test prompt"
 
 # Third call should return 3
 test_output_contains "stub counter increments to 3" "LLM return 3" \
-  env AGEN_BACKEND=stub "$AGEN" "another prompt"
+  env AGENT_BACKEND=stub "$AGEN" "another prompt"
 
 # Reset counter by deleting the file
 rm -f "$STUB_COUNTER_FILE"
 test_output_contains "stub counter resets after file delete" "LLM return 1" \
-  env AGEN_BACKEND=stub "$AGEN" "test prompt"
+  env AGENT_BACKEND=stub "$AGEN" "test prompt"
 
 # Piped input is consumed (doesn't block)
 test_output_contains "stub handles piped input" "LLM return 2" \
-  bash -c 'echo "piped data" | AGEN_BACKEND=stub AGEN_STUB_FILE='"$STUB_COUNTER_FILE"' '"$AGEN"' "process this"'
+  bash -c 'echo "piped data" | AGENT_BACKEND=stub AGENT_STUB_FILE='"$STUB_COUNTER_FILE"' '"$AGEN"' "process this"'
 
 # Cleanup
 rm -f "$STUB_COUNTER_FILE"
-unset AGEN_STUB_FILE
+unset AGENT_STUB_FILE
 
 # Summary
 echo ""

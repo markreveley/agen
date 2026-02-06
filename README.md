@@ -1,11 +1,11 @@
-# agen
+# agent
 
 ## What Is This?
 
-`agen` is to LLM inference what `curl` is to HTTP: a request primitive. It sends a prompt to an LLM and emits the response to stdout. This is infrastructure for [Unix Agentics](https://stratta.dev) — the thesis that agents should be files, processes, and streams, not chat interfaces.
+`agent` is to LLM inference what `curl` is to HTTP: a request primitive. It sends a prompt to an LLM and emits the response to stdout. This is infrastructure for [Unix Agentics](https://stratta.dev) — the thesis that agents should be files, processes, and streams, not chat interfaces.
 
 ```bash
-cat error.log | agen "diagnose" | agen "suggest fix" > recommendations.md
+cat error.log | agent "diagnose" | agent "suggest fix" > recommendations.md
 ```
 
 ## Shell Agentics
@@ -15,16 +15,16 @@ Part of the [Shell Agentics](https://github.com/shellagentics/shell-agentics) to
 ## Installation
 
 ```bash
-git clone https://github.com/shellagentics/agen.git
-cd agen
-./agen --help
+git clone https://github.com/shellagentics/agent.git
+cd agent
+./agent --help
 ```
 
 No build step. Just bash.
 
 ## Backends
 
-agen supports multiple LLM backends:
+agent supports multiple LLM backends:
 
 | Backend | Command | Cost | Best for |
 |---------|---------|------|----------|
@@ -33,34 +33,34 @@ agen supports multiple LLM backends:
 | `api` | Direct curl | API costs | No dependencies |
 | `stub` | None | Free | Testing, demos, development |
 
-Auto-detection tries them in order. Override with `--backend=` or `AGEN_BACKEND=`.
+Auto-detection tries them in order. Override with `--backend=` or `AGENT_BACKEND=`.
 
 ### Setup by backend
 
 **Claude Code** (recommended for Max subscribers):
 ```bash
 # Install Claude Code, then:
-./agen "hello"  # auto-detects
+./agent "hello"  # auto-detects
 ```
 
 **llm CLI**:
 ```bash
 pip install llm
 llm keys set anthropic  # or configure other providers
-./agen --backend=llm "hello"
+./agent --backend=llm "hello"
 ```
 
 **Direct API**:
 ```bash
 export ANTHROPIC_API_KEY="your-key"
-./agen --backend=api "hello"
+./agent --backend=api "hello"
 ```
 
 ## Usage
 
 ```
-agen [OPTIONS] [PROMPT]
-command | agen [OPTIONS] [PROMPT]
+agent [OPTIONS] [PROMPT]
+command | agent [OPTIONS] [PROMPT]
 ```
 
 ### Working Options
@@ -77,50 +77,50 @@ command | agen [OPTIONS] [PROMPT]
 
 ### Design: Single-Shot by Choice
 
-agen is deliberately a single-shot primitive: prompt in, response out. It does not implement tool-calling loops, state management, or multi-turn conversations. This is an architectural commitment, not a limitation.
+agent is deliberately a single-shot primitive: prompt in, response out. It does not implement tool-calling loops, state management, or multi-turn conversations. This is an architectural commitment, not a limitation.
 
-In Shell Agentics, the orchestrating script controls the loop. The LLM is an oracle — it answers questions, it doesn't make decisions about tool use. Decisions live in auditable shell scripts. This provides a fundamentally different security posture: the LLM can suggest whatever it wants, but the skill script is the gatekeeper. See [shellclaw](https://github.com/shellagentics/shellclaw) for how this works in practice.
+In Shell Agentics, the orchestrating script controls the loop. The LLM is an oracle — it answers questions, it doesn't make decisions about tool use. Decisions live in auditable shell scripts. This provides a fundamentally different security posture: the LLM can suggest whatever it wants, but the orchestrating script is the gatekeeper. See [shellclaw](https://github.com/shellagentics/shellclaw) for how this works in practice.
 
 ### Exit Codes
 
 | Code | Meaning | Script Usage |
 |------|---------|--------------|
-| 0 | Success | `agen && echo "done"` |
-| 1 | Failure | `agen \|\| echo "failed"` |
+| 0 | Success | `agent && echo "done"` |
+| 1 | Failure | `agent \|\| echo "failed"` |
 
 ## Examples
 
 ### Simple Query
 
 ```bash
-agen "Explain Unix pipes"
+agent "Explain Unix pipes"
 ```
 
 ### Pipeline Usage
 
 ```bash
 # Diagnose an error
-cat error.log | agen "diagnose this error"
+cat error.log | agent "diagnose this error"
 
 # Chain agents
-cat data.csv | agen "summarize" | agen "format as markdown" > summary.md
+cat data.csv | agent "summarize" | agent "format as markdown" > summary.md
 ```
 
 ### With System Prompt
 
 ```bash
 # Inline system prompt
-git diff | agen --system="You are a code reviewer. Be concise." "review these changes"
+git diff | agent --system="You are a code reviewer. Be concise." "review these changes"
 
 # System prompt from file (for agent soul files)
-git diff | agen --system-file=SYSTEM.md "review these changes"
+git diff | agent --system-file=SYSTEM.md "review these changes"
 ```
 
 ### Scripting
 
 ```bash
 # Use in scripts with proper error handling
-if cat report.txt | agen "summarize in one sentence"; then
+if cat report.txt | agent "summarize in one sentence"; then
   echo "Done"
 else
   echo "Failed with exit code $?"
@@ -129,7 +129,7 @@ fi
 
 ## How It Works
 
-agen constructs a prompt from layers:
+agent constructs a prompt from layers:
 
 ```
 ┌─────────────────────────────────────┐
@@ -151,21 +151,21 @@ The `stub` backend returns `"LLM return N"` with an incrementing counter. No LLM
 
 ```bash
 # Run with stub backend
-AGEN_BACKEND=stub agen "hello"       # → "LLM return 1"
-AGEN_BACKEND=stub agen "hello again" # → "LLM return 2"
+AGENT_BACKEND=stub agent "hello"       # → "LLM return 1"
+AGENT_BACKEND=stub agent "hello again" # → "LLM return 2"
 
 # Reset the counter
-rm /tmp/agen-stub-counter
+rm /tmp/agent-stub-counter
 
 # Custom counter file
-AGEN_STUB_FILE=/tmp/my-counter AGEN_BACKEND=stub agen "test"
+AGENT_STUB_FILE=/tmp/my-counter AGENT_BACKEND=stub agent "test"
 ```
 
 ## Directory Structure
 
 ```
-agen/
-├── agen                # Main CLI script (~350 lines bash)
+agent/
+├── agent               # Main CLI script (~350 lines bash)
 ├── test.sh             # Test suite
 ├── README.md           # This file
 ├── DEVLOG.md           # Development notes and decisions

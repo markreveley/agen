@@ -1,21 +1,21 @@
 #!/usr/bin/env bash
 #
-# agen - Unix-native AI agent CLI
+# agent - Unix-native AI agent CLI
 #
 # A CLI tool that brings AI agents into Unix pipelines. Agents compose
 # with other tools rather than replacing the shell.
 #
 # Usage:
-#   agen "Explain Unix pipes"
-#   cat error.log | agen "diagnose this error"
-#   echo "summarize" | agen
+#   agent "Explain Unix pipes"
+#   cat error.log | agent "diagnose this error"
+#   echo "summarize" | agent
 #
 # Configuration:
-#   Set AGEN_BACKEND env var:
-#     AGEN_BACKEND=claude-code   # uses Claude Code CLI (Max subscription)
-#     AGEN_BACKEND=llm           # uses llm CLI (API costs)
-#     AGEN_BACKEND=api           # uses direct Anthropic API (API costs)
-#     AGEN_BACKEND=auto          # auto-detect (default)
+#   Set AGENT_BACKEND env var:
+#     AGENT_BACKEND=claude-code   # uses Claude Code CLI (Max subscription)
+#     AGENT_BACKEND=llm           # uses llm CLI (API costs)
+#     AGENT_BACKEND=api           # uses direct Anthropic API (API costs)
+#     AGENT_BACKEND=auto          # auto-detect (default)
 #
 set -euo pipefail
 
@@ -32,11 +32,11 @@ EXIT_FAILURE=1
 
 show_help() {
   cat <<'EOF'
-agen - Unix-native AI agent CLI
+agent - Unix-native AI agent CLI
 
 SYNOPSIS
-  agen [OPTIONS] [PROMPT]
-  command | agen [OPTIONS] [PROMPT]
+  agent [OPTIONS] [PROMPT]
+  command | agent [OPTIONS] [PROMPT]
 
 DESCRIPTION
   A CLI tool that brings AI agents into Unix pipelines. Agents compose
@@ -57,28 +57,28 @@ EXIT CODES
 
 EXAMPLES
   # Simple query
-  agen "Explain Unix pipes"
+  agent "Explain Unix pipes"
 
   # Pipeline usage
-  cat error.log | agen "diagnose this error"
+  cat error.log | agent "diagnose this error"
 
   # Chain agents
-  cat data.csv | agen "summarize" | agen "format as markdown"
+  cat data.csv | agent "summarize" | agent "format as markdown"
 
   # With system prompt from file
-  agen --system-file=SYSTEM.md "process this task"
+  agent --system-file=SYSTEM.md "process this task"
 
   # With inline system prompt
-  agen --system="You are a code reviewer. Be concise." "review this"
+  agent --system="You are a code reviewer. Be concise." "review this"
 
   # Specific backend
-  agen --backend=claude-code "explain this"
+  agent --backend=claude-code "explain this"
 
 ENVIRONMENT
-  AGEN_BACKEND        Backend to use (claude-code, llm, api, stub, auto)
+  AGENT_BACKEND        Backend to use (claude-code, llm, api, stub, auto)
   ANTHROPIC_API_KEY   Required for api backend
   LLM_MODEL           Model override for llm backend
-  AGEN_STUB_FILE      Counter file for stub backend (default: /tmp/agen-stub-counter)
+  AGENT_STUB_FILE      Counter file for stub backend (default: /tmp/agent-stub-counter)
 
 BACKENDS
   claude-code   Uses Claude Code CLI in print mode. Requires 'claude' command.
@@ -99,7 +99,7 @@ EOF
 }
 
 show_version() {
-  echo "agen $VERSION"
+  echo "agent $VERSION"
 }
 
 # =============================================================================
@@ -107,13 +107,13 @@ show_version() {
 # =============================================================================
 
 die() {
-  echo "agen: $*" >&2
+  echo "agent: $*" >&2
   exit $EXIT_FAILURE
 }
 
 verbose() {
   if [[ "${VERBOSE:-}" == "1" ]]; then
-    echo "agen: $*" >&2
+    echo "agent: $*" >&2
   fi
 }
 
@@ -154,7 +154,7 @@ call_llm_cli() {
 # Useful for testing, demos, and development without API costs.
 call_stub() {
   local prompt="$1"
-  local counter_file="${AGEN_STUB_FILE:-/tmp/agen-stub-counter}"
+  local counter_file="${AGENT_STUB_FILE:-/tmp/agent-stub-counter}"
 
   local count=1
   if [[ -f "$counter_file" ]]; then
@@ -278,7 +278,7 @@ build_prompt() {
 
 main() {
   # Defaults
-  BACKEND="${AGEN_BACKEND:-auto}"
+  BACKEND="${AGENT_BACKEND:-auto}"
   MODEL="$DEFAULT_MODEL"
   SYSTEM_FILE=""
   SYSTEM_PROMPT=""

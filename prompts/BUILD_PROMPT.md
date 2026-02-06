@@ -1,5 +1,5 @@
 ---
-prompt_id: build-agen-cli
+prompt_id: build-agent-cli
 version: 1.0.0
 created_at: 2026-01-23
 updated_at: 2026-01-23
@@ -9,7 +9,7 @@ model_target: claude-sonnet-4-20250514
 tags: [system, build, specification]
 ---
 
-# Building `agen`: A Unix-Native Agent CLI
+# Building `agent`: A Unix-Native Agent CLI
 
 ## Condensed Build Prompt (v2)
 
@@ -27,7 +27,7 @@ The terminal is a 50-year-old prototype of an agentic interface. There are two v
 
 ```
 # Vision B in action
-cat error.log | agen "diagnose" | agen "suggest fix" > recommendations.md
+cat error.log | agent "diagnose" | agent "suggest fix" > recommendations.md
 ```
 
 **Vision B is underbuilt. That's the gap. That's what we're building.**
@@ -51,8 +51,8 @@ This is the specification. Implementation serves this contract, not the reverse.
 ### Synopsis
 
 ```
-agen [OPTIONS] [PROMPT]
-command | agen [OPTIONS] [PROMPT]
+agent [OPTIONS] [PROMPT]
+command | agent [OPTIONS] [PROMPT]
 ```
 
 ### Options
@@ -75,8 +75,8 @@ command | agen [OPTIONS] [PROMPT]
 
 | Code | Name | Meaning | Script Usage |
 |------|------|---------|--------------|
-| 0 | SUCCESS | Task completed | `agen && echo "done"` |
-| 1 | FAILURE | Error occurred | `agen \|\| echo "failed"` |
+| 0 | SUCCESS | Task completed | `agent && echo "done"` |
+| 1 | FAILURE | Error occurred | `agent \|\| echo "failed"` |
 | 2 | NEEDS_INPUT | Human input required (batch mode) | Retry with more context |
 | 3 | LIMIT | Hit max-turns | Increase limit or checkpoint |
 
@@ -107,7 +107,7 @@ Each phase produces a tested commit. You can `git checkout` any phase.
 | Phase | Name | What It Adds | Key Test |
 |-------|------|--------------|----------|
 | 0 | Interface Contract | `--help`, `--version` only | Help text displays |
-| 1 | Basic Flow | stdin → LLM → stdout | `echo "hi" \| agen "respond"` works |
+| 1 | Basic Flow | stdin → LLM → stdout | `echo "hi" \| agent "respond"` works |
 | 2 | Exit Semantics | `--batch`, exit codes 0/1/2 | Script can `case $?` |
 | 3 | State | `--state`, `--resume` | Multi-turn conversation persists |
 | 4 | Agentic Loop | `--tools=bash`, `--max-turns` | Agent creates a file |
@@ -184,12 +184,12 @@ done
 ```bash
 log() {
   if [[ "$VERBOSE" == true ]]; then
-    echo "[agen] $*" >&2
+    echo "[agent] $*" >&2
   fi
 }
 
 die() {
-  echo "agen: $*" >&2
+  echo "agent: $*" >&2
   exit $EXIT_FAILURE
 }
 
@@ -269,8 +269,8 @@ test_case() {
 }
 
 # Usage
-test_case "--help exits 0" 0 ./agen --help
-test_case "missing API key exits 1" 1 env -u ANTHROPIC_API_KEY ./agen "test"
+test_case "--help exits 0" 0 ./agent --help
+test_case "missing API key exits 1" 1 env -u ANTHROPIC_API_KEY ./agent "test"
 ```
 
 **Why this pattern:**
@@ -287,19 +287,19 @@ test_case "missing API key exits 1" 1 env -u ANTHROPIC_API_KEY ./agen "test"
 **Goal:** Define the interface before any implementation.
 
 **Deliverables:**
-- `agen` script with only `--help` and `--version` working
+- `agent` script with only `--help` and `--version` working
 - `README.md` with usage examples
 - `test.sh` that verifies help/version
 - `DEVLOG.md` for notes
 
 **Tests to pass:**
 ```bash
-./agen --help        # exits 0, output contains "SYNOPSIS"
-./agen --version     # exits 0, output contains version number
-./agen "anything"    # exits 1 (not yet implemented)
+./agent --help        # exits 0, output contains "SYNOPSIS"
+./agent --version     # exits 0, output contains version number
+./agent "anything"    # exits 1 (not yet implemented)
 ```
 
-**Commit:** `"Phase 0: Define agen CLI interface contract"`
+**Commit:** `"Phase 0: Define agent CLI interface contract"`
 
 ---
 
@@ -315,10 +315,10 @@ test_case "missing API key exits 1" 1 env -u ANTHROPIC_API_KEY ./agen "test"
 
 **Tests to pass:**
 ```bash
-./agen "Say hello"                    # exits 0, outputs response
-echo "2+2" | ./agen "What is this?"   # exits 0, outputs response
-./agen                                # exits 1 (no prompt)
-env -u ANTHROPIC_API_KEY ./agen "x"   # exits 1 (no API key)
+./agent "Say hello"                    # exits 0, outputs response
+echo "2+2" | ./agent "What is this?"   # exits 0, outputs response
+./agent                                # exits 1 (no prompt)
+env -u ANTHROPIC_API_KEY ./agent "x"   # exits 1 (no API key)
 ```
 
 **Commit:** `"Phase 1: Basic stdin→LLM→stdout flow"`
@@ -343,8 +343,8 @@ env -u ANTHROPIC_API_KEY ./agen "x"   # exits 1 (no API key)
 
 **Tests to pass:**
 ```bash
-./agen "Say exactly: hello"           # exits 0
-./agen --batch "Say exactly: hello"   # exits 0
+./agent "Say exactly: hello"           # exits 0
+./agent --batch "Say exactly: hello"   # exits 0
 # Testing exit 2 is tricky - see notes below
 ```
 
@@ -366,10 +366,10 @@ env -u ANTHROPIC_API_KEY ./agen "x"   # exits 1 (no API key)
 
 **Tests to pass:**
 ```bash
-./agen --state=test.json "First message"     # creates test.json
-./agen --state=test.json --resume "Second"   # appends to test.json
+./agent --state=test.json "First message"     # creates test.json
+./agent --state=test.json --resume "Second"   # appends to test.json
 jq '.messages | length' test.json             # outputs 4 (2 user + 2 assistant)
-./agen --state=nonexistent --resume "x"      # exits 1 (file not found)
+./agent --state=nonexistent --resume "x"      # exits 1 (file not found)
 ```
 
 **Commit:** `"Phase 3: Add state persistence and --resume"`
@@ -391,8 +391,8 @@ The Anthropic API has native tool use support. For this bash POC, we use a simpl
 
 **Tests to pass:**
 ```bash
-./agen --tools=bash "Create /tmp/agen-test.txt with 'hello'"  # file exists after
-./agen --tools=bash --max-turns=1 "List files then count them" # may exit 3
+./agent --tools=bash "Create /tmp/agent-test.txt with 'hello'"  # file exists after
+./agent --tools=bash --max-turns=1 "List files then count them" # may exit 3
 ```
 
 **Commit:** `"Phase 4: Add agentic loop with bash tool"`
@@ -410,7 +410,7 @@ The Anthropic API has native tool use support. For this bash POC, we use a simpl
 
 **Tests to pass:**
 ```bash
-./agen --state=cp.json --checkpoint "Test"
+./agent --state=cp.json --checkpoint "Test"
 jq '.status, .updated_at' cp.json             # both fields present
 ```
 
@@ -459,11 +459,11 @@ echo "$response" | jq -r '.content[0].text'
 
 ```bash
 # ❌ BAD: Test passes even if command fails
-output=$(./agen "test")
+output=$(./agent "test")
 echo "Test passed"
 
 # ✅ GOOD: Check exit code
-if output=$(./agen "test"); then
+if output=$(./agent "test"); then
   echo "✓ Test passed"
 else
   echo "✗ Test failed with exit code $?"
@@ -503,8 +503,8 @@ failed_command      # script exits
 After all phases, your directory contains:
 
 ```
-agen/
-├── agen               # The CLI (~300 lines bash)
+agent/
+├── agent              # The CLI (~300 lines bash)
 ├── test.sh            # Test suite
 ├── README.md          # User documentation
 ├── DEVLOG.md          # Your build notes
@@ -517,17 +517,17 @@ agen/
 
 ```
 USAGE
-  agen [OPTIONS] [PROMPT]
-  command | agen [OPTIONS] [PROMPT]
+  agent [OPTIONS] [PROMPT]
+  command | agent [OPTIONS] [PROMPT]
 
 EXIT CODES
   0 = success    1 = failure    2 = needs input    3 = hit limit
 
 KEY PATTERNS
-  Stateless:     cat log | agen "diagnose"
-  Stateful:      agen --state=s.json "start" → agen --state=s.json --resume "continue"
-  Agentic:       agen --tools=bash --max-turns=5 "do complex task"
-  Scripted:      cat data | agen --batch && echo "ok" || echo "failed: $?"
+  Stateless:     cat log | agent "diagnose"
+  Stateful:      agent --state=s.json "start" → agent --state=s.json --resume "continue"
+  Agentic:       agent --tools=bash --max-turns=5 "do complex task"
+  Scripted:      cat data | agent --batch && echo "ok" || echo "failed: $?"
 
 DEPENDENCIES
   bash 4+, curl, jq, ANTHROPIC_API_KEY env var
@@ -561,4 +561,4 @@ This prompt should be saved as an artifact and version controlled.
 - Defines 6 phases (0-5) for incremental implementation
 - Establishes bash coding patterns and antipatterns
 - Specifies interface contract with exit codes and state format
-- Renamed CLI from `agent` to `agen` to avoid confusion
+- Renamed CLI back to `agent` from `agen`

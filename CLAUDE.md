@@ -1,12 +1,12 @@
-# CLAUDE.md - AI Assistant Guide for `agen`
+# CLAUDE.md - AI Assistant Guide for `agent`
 
 ## Project Overview
 
-**agen** is a Unix-native CLI tool that embodies "Vision B: Agent in the Shell" - where AI agents compose in pipelines as one tool among many, rather than replacing the shell entirely.
+**agent** is a Unix-native CLI tool that embodies "Vision B: Agent in the Shell" - where AI agents compose in pipelines as one tool among many, rather than replacing the shell entirely.
 
 ```bash
 # The Unix way: agents compose in pipelines
-cat error.log | agen "diagnose" | agen "suggest fix" > recommendations.md
+cat error.log | agent "diagnose" | agent "suggest fix" > recommendations.md
 ```
 
 ## Why Bash
@@ -21,8 +21,8 @@ This is Phase 1 of a larger vision. Bash proves the interface contract.
 ## Directory Structure
 
 ```
-agen/
-├── agen               # Main CLI script (~300 lines bash)
+agent/
+├── agent              # Main CLI script (~300 lines bash)
 ├── test.sh            # Test suite
 ├── README.md          # User documentation
 ├── DEVLOG.md          # Development notes and decisions
@@ -35,8 +35,8 @@ agen/
 ### Synopsis
 
 ```
-agen [OPTIONS] [PROMPT]
-command | agen [OPTIONS] [PROMPT]
+agent [OPTIONS] [PROMPT]
+command | agent [OPTIONS] [PROMPT]
 ```
 
 ### Options
@@ -59,8 +59,8 @@ command | agen [OPTIONS] [PROMPT]
 
 | Code | Name | Meaning | Usage |
 |------|------|---------|-------|
-| 0 | SUCCESS | Task completed | `agen && echo "done"` |
-| 1 | FAILURE | Error occurred | `agen \|\| echo "failed"` |
+| 0 | SUCCESS | Task completed | `agent && echo "done"` |
+| 1 | FAILURE | Error occurred | `agent \|\| echo "failed"` |
 | 2 | NEEDS_INPUT | Human input required (batch mode) | Retry with more context |
 | 3 | LIMIT | Hit max-turns | Increase limit or checkpoint |
 
@@ -87,7 +87,7 @@ command | agen [OPTIONS] [PROMPT]
 | Phase | Name | What It Adds | Key Test |
 |-------|------|--------------|----------|
 | 0 | Interface Contract | `--help`, `--version` only | Help text displays |
-| 1 | Basic Flow | stdin → LLM → stdout | `echo "hi" \| agen "respond"` works |
+| 1 | Basic Flow | stdin → LLM → stdout | `echo "hi" \| agent "respond"` works |
 | 2 | Exit Semantics | `--batch`, exit codes 0/1/2 | Script can `case $?` |
 | 3 | State | `--state`, `--resume` | Multi-turn conversation persists |
 | 4 | Agentic Loop | `--tools=bash`, `--max-turns` | Agent creates a file |
@@ -144,12 +144,12 @@ done
 ```bash
 log() {
   if [[ "$VERBOSE" == true ]]; then
-    echo "[agen] $*" >&2
+    echo "[agent] $*" >&2
   fi
 }
 
 die() {
-  echo "agen: $*" >&2
+  echo "agent: $*" >&2
   exit $EXIT_FAILURE
 }
 
@@ -221,8 +221,8 @@ test_case() {
 }
 
 # Usage
-test_case "--help exits 0" 0 ./agen --help
-test_case "missing API key exits 1" 1 env -u ANTHROPIC_API_KEY ./agen "test"
+test_case "--help exits 0" 0 ./agent --help
+test_case "missing API key exits 1" 1 env -u ANTHROPIC_API_KEY ./agent "test"
 ```
 
 ### Test Summary
@@ -292,17 +292,17 @@ source "$SCRIPT_DIR/utils.sh"
 
 ```
 USAGE
-  agen [OPTIONS] [PROMPT]
-  command | agen [OPTIONS] [PROMPT]
+  agent [OPTIONS] [PROMPT]
+  command | agent [OPTIONS] [PROMPT]
 
 EXIT CODES
   0 = success    1 = failure    2 = needs input    3 = hit limit
 
 KEY PATTERNS
-  Stateless:     cat log | agen "diagnose"
-  Stateful:      agen --state=s.json "start" → agen --state=s.json --resume "continue"
-  Agentic:       agen --tools=bash --max-turns=5 "do complex task"
-  Scripted:      cat data | agen --batch && echo "ok" || echo "failed: $?"
+  Stateless:     cat log | agent "diagnose"
+  Stateful:      agent --state=s.json "start" → agent --state=s.json --resume "continue"
+  Agentic:       agent --tools=bash --max-turns=5 "do complex task"
+  Scripted:      cat data | agent --batch && echo "ok" || echo "failed: $?"
 ```
 
 ## For AI Assistants
@@ -323,7 +323,7 @@ When working on this codebase:
 ### Commit Message Format
 
 ```
-Phase 0: Define agen CLI interface contract
+Phase 0: Define agent CLI interface contract
 Phase 1: Basic stdin→LLM→stdout flow
 Phase 2: Add --batch mode and exit code semantics
 Phase 3: Add state persistence and --resume
